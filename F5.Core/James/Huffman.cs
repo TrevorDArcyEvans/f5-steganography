@@ -2,7 +2,7 @@
 {
   using System.Collections.Generic;
   using System.IO;
-  using F5.Core.Util;
+  using Util;
 
   internal sealed class Huffman
   {

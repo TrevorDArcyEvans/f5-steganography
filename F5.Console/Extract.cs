@@ -2,6 +2,7 @@
 {
   using System;
   using System.IO;
+  using Core;
 
   public static class Extract
   {
@@ -38,11 +39,17 @@
         }
 
         if (args[i].Equals("-e"))
+        {
           embFileName = args[i + 1];
+        }
         else if (args[i].Equals("-p"))
+        {
           password = args[i + 1];
+        }
         else
+        {
           Console.WriteLine("Unknown switch " + args[i] + " ignored.");
+        }
         i++;
       }
 

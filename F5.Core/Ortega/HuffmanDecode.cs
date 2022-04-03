@@ -2,7 +2,7 @@
 {
   using System;
   using System.IO;
-  using F5.Core.Util;
+  using Util;
   using log4net;
 
   internal sealed class HuffmanDecode : IDisposable

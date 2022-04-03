@@ -1,23 +1,21 @@
-﻿namespace F5
+﻿namespace F5.Core
 {
-  using System;
-  using System.IO;
   using System.Text;
-  using F5.Core.Crypt;
-  using F5.Core.Ortega;
+  using Crypt;
+  using Ortega;
   using log4net;
 
-  public class JpegExtract : IDisposable
+  public sealed class JpegExtract : IDisposable
   {
-    private static readonly ILog logger = LogManager.GetLogger(typeof(JpegExtract));
-    private int availableExtractedBits;
-    private int extractedBit, pos;
-    private int extractedByte;
-    private int extractedFileLength;
-    private int nBytesExtracted;
-    private readonly Stream output;
-    private readonly F5Random random;
-    private int shuffledIndex;
+    private static readonly ILog Logger = LogManager.GetLogger(typeof(JpegExtract));
+    private int _availableExtractedBits;
+    private int _extractedBit, _pos;
+    private int _extractedByte;
+    private int _extractedFileLength;
+    private int _nBytesExtracted;
+    private readonly Stream _output;
+    private readonly F5Random _random;
+    private int _shuffledIndex;
 
     public JpegExtract(Stream output, string password)
       : this(output, Encoding.ASCII.GetBytes(password))
@@ -26,8 +24,8 @@
 
     public JpegExtract(Stream output, byte[] password)
     {
-      this.output = output;
-      random = new F5Random(password);
+      _output = output;
+      _random = new F5Random(password);
     }
 
     public void Extract(Stream input)
@@ -40,69 +38,88 @@
         coeff = hd.Decode();
       }
 
-      logger.Info("Permutation starts");
-      var permutation = new Permutation(coeff.Length, random);
-      logger.Info(coeff.Length + " indices shuffled");
+      Logger.Info("Permutation starts");
+      var permutation = new Permutation(coeff.Length, _random);
+      Logger.Info(coeff.Length + " indices shuffled");
 
       // extract length information
       CalcEmbeddedLength(permutation, coeff);
-      k = (extractedFileLength >> 24) % 32;
+      k = (_extractedFileLength >> 24) % 32;
       n = (1 << k) - 1;
-      extractedFileLength &= 0x007fffff;
+      _extractedFileLength &= 0x007fffff;
 
-      logger.Info("Length of embedded file: " + extractedFileLength + " bytes");
+      Logger.Info("Length of embedded file: " + _extractedFileLength + " bytes");
 
       if (n > 0)
+      {
         while (true)
         {
           hash = 0;
           code = 1;
           while (code <= n)
           {
-            pos++;
-            if (pos >= coeff.Length)
+            _pos++;
+            if (_pos >= coeff.Length)
+            {
               goto leaveContext;
-            shuffledIndex = permutation.GetShuffled(pos);
-            extractedBit = ExtractBit(coeff);
-            if (extractedBit == -1)
+            }
+
+            _shuffledIndex = permutation.GetShuffled(_pos);
+            _extractedBit = ExtractBit(coeff);
+            if (_extractedBit == -1)
+            {
               continue;
-            if (extractedBit == 1)
+            }
+
+            if (_extractedBit == 1)
+            {
               hash ^= code;
+            }
+
             code++;
           }
 
           for (i = 0; i < k; i++)
           {
-            extractedByte |= ((hash >> i) & 1) << availableExtractedBits++;
-            if (availableExtractedBits == 8)
+            _extractedByte |= ((hash >> i) & 1) << _availableExtractedBits++;
+            if (_availableExtractedBits == 8)
             {
               WriteExtractedByte();
               // check for pending end of embedded data
-              if (nBytesExtracted == extractedFileLength)
+              if (_nBytesExtracted == _extractedFileLength)
+              {
                 goto leaveContext;
+              }
             }
           }
         }
+      }
 
-      while (++pos < coeff.Length && pos < permutation.Length)
+      while (++_pos < coeff.Length && _pos < permutation.Length)
       {
-        shuffledIndex = permutation.GetShuffled(pos);
-        extractedBit = ExtractBit(coeff);
-        if (extractedBit == -1)
+        _shuffledIndex = permutation.GetShuffled(_pos);
+        _extractedBit = ExtractBit(coeff);
+        if (_extractedBit == -1)
+        {
           continue;
-        extractedByte |= extractedBit << availableExtractedBits++;
-        if (availableExtractedBits == 8)
+        }
+
+        _extractedByte |= _extractedBit << _availableExtractedBits++;
+        if (_availableExtractedBits == 8)
         {
           WriteExtractedByte();
-          if (nBytesExtracted == extractedFileLength)
+          if (_nBytesExtracted == _extractedFileLength)
+          {
             break;
+          }
         }
       }
 
       leaveContext: ;
-      if (nBytesExtracted < extractedFileLength)
-        logger.Warn("Incomplete file: only " + nBytesExtracted +
-                    " of " + extractedFileLength + " bytes extracted");
+      if (_nBytesExtracted < _extractedFileLength)
+      {
+        Logger.Warn("Incomplete file: only " + _nBytesExtracted + " of " + _extractedFileLength + " bytes extracted");
+      }
     }
 
     /// <summary>
@@ -110,46 +127,55 @@
     /// </summary>
     private void CalcEmbeddedLength(Permutation permutation, int[] coeff)
     {
-      extractedFileLength = 0;
-      pos = -1;
+      _extractedFileLength = 0;
+      _pos = -1;
 
       var i = 0;
-      while (i < 32 && ++pos < coeff.Length)
+      while (i < 32 && ++_pos < coeff.Length)
       {
-        shuffledIndex = permutation.GetShuffled(pos);
-        extractedBit = ExtractBit(coeff);
-        if (extractedBit == -1)
+        _shuffledIndex = permutation.GetShuffled(_pos);
+        _extractedBit = ExtractBit(coeff);
+        if (_extractedBit == -1)
+        {
           continue;
-        extractedFileLength |= extractedBit << i++;
+        }
+
+        _extractedFileLength |= _extractedBit << i++;
       }
 
       // remove pseudo random pad
-      extractedFileLength ^= random.GetNextByte();
-      extractedFileLength ^= random.GetNextByte() << 8;
-      extractedFileLength ^= random.GetNextByte() << 16;
-      extractedFileLength ^= random.GetNextByte() << 24;
+      _extractedFileLength ^= _random.GetNextByte();
+      _extractedFileLength ^= _random.GetNextByte() << 8;
+      _extractedFileLength ^= _random.GetNextByte() << 16;
+      _extractedFileLength ^= _random.GetNextByte() << 24;
     }
 
     private void WriteExtractedByte()
     {
       // remove pseudo random pad
-      extractedByte ^= random.GetNextByte();
-      output.WriteByte((byte)extractedByte);
-      extractedByte = 0;
-      availableExtractedBits = 0;
-      nBytesExtracted++;
+      _extractedByte ^= _random.GetNextByte();
+      _output.WriteByte((byte)_extractedByte);
+      _extractedByte = 0;
+      _availableExtractedBits = 0;
+      _nBytesExtracted++;
     }
 
     private int ExtractBit(int[] coeff)
     {
       int coeffVal;
-      var mod64 = shuffledIndex % 64;
+      var mod64 = _shuffledIndex % 64;
       if (mod64 == 0)
+      {
         return -1;
-      shuffledIndex = shuffledIndex - mod64 + HuffmanDecode.deZigZag[mod64];
-      coeffVal = coeff[shuffledIndex];
+      }
+
+      _shuffledIndex = _shuffledIndex - mod64 + HuffmanDecode.deZigZag[mod64];
+      coeffVal = coeff[_shuffledIndex];
       if (coeffVal == 0)
+      {
         return -1;
+      }
+
       return coeffVal > 0 ? coeffVal & 1 : 1 - (coeffVal & 1);
     }
 
@@ -171,9 +197,15 @@
     private void Dispose(bool disposing)
     {
       if (_disposed)
+      {
         return;
+      }
+
       if (disposing)
-        output.Dispose();
+      {
+        _output.Dispose();
+      }
+
       _disposed = true;
     }
 

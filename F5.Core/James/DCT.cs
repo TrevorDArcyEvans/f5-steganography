@@ -1,7 +1,7 @@
 ﻿namespace F5.Core.James
 {
   using System;
-  using F5.Core.Util;
+  using Util;
 
   // Version 1.0a
   // Copyright (C) 1998, James R. Weeks and BioElectroMech.

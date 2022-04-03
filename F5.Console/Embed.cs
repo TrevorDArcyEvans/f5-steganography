@@ -29,6 +29,7 @@
         if (!args[i].StartsWith("-"))
         {
           if (!haveInputImage)
+          {
             switch (Path.GetExtension(args[i]))
             {
               case ".jpg":
@@ -44,8 +45,11 @@
                 StandardUsage();
                 return;
             }
+          }
           else
+          {
             outFileName = Path.GetFileNameWithoutExtension(args[i]) + ".jpg";
+          }
 
           continue;
         }
@@ -88,7 +92,10 @@
       while (File.Exists(outFileName))
       {
         outFileName = Path.GetFileNameWithoutExtension(outFileName) + i++ + ".jpg";
-        if (i > 100) Environment.Exit(0);
+        if (i > 100)
+        {
+          Environment.Exit(0);
+        }
       }
 
       if (!File.Exists(inFileName))

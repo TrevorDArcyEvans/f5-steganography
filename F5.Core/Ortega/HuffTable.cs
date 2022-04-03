@@ -1,7 +1,7 @@
 ﻿namespace F5.Core.Ortega
 {
   using System.IO;
-  using F5.Core.Util;
+  using Util;
 
   internal sealed class HuffTable
   {

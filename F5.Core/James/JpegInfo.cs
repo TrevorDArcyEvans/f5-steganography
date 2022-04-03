@@ -4,7 +4,7 @@
   using System.Drawing;
   using System.Drawing.Imaging;
   using System.Runtime.InteropServices;
-  using F5.Core.Util;
+  using Util;
 
   internal sealed class JpegInfo
   {
