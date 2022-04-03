@@ -1,8 +1,11 @@
-# C\# Implementation of F5 Algorithm for JPEG Steganography
-F5 is a steganography algo for hiding information in JPEG images.
+# C# Implementation of F5 Algorithm for JPEG Steganography
 
-More Information & Java Implementation:
-(https://code.google.com/p/f5-steganography/)
+![](steganosaurus.png)
+
+F5 is a steganography algorithm for hiding information in JPEG images.
+
+## More Information:
+* [F5 A Steganographic Algorithm](F5-A-Steganographic-Algorithm.pdf)
 
 ```text
 F5 is a steganography algo for hiding information in JPEG images.  Unless other implementations it 
@@ -24,8 +27,11 @@ Thus it reduces the number of nec- essary changes. F5 employs permutative stradd
 spread out the changes over the whole steganogram.
 ```
 
-Python Implementation:
-(https://github.com/jackfengji/f5-steganography/)
+## Java Implementation:
+* https://code.google.com/p/f5-steganography/
+
+## Python Implementation:
+* https://github.com/jackfengji/f5-steganography/
 
 ## Dependencies:
 * BouncyCastle
