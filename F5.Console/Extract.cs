@@ -46,10 +46,8 @@
         i++;
       }
 
-      using (var extractor = new JpegExtract(File.OpenWrite(embFileName), password))
-      {
-        extractor.Extract(File.OpenRead(jpegFileName));
-      }
+      using var extractor = new JpegExtract(File.OpenWrite(embFileName), password);
+      extractor.Extract(File.OpenRead(jpegFileName));
     }
 
     public static void StandardUsage()

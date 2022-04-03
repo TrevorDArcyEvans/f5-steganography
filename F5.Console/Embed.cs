@@ -3,7 +3,7 @@
   using System;
   using System.Drawing;
   using System.IO;
-  using F5.Core.James;
+  using Core.James;
 
   public static class Embed
   {
@@ -52,7 +52,7 @@
 
         if (args.Length < i + 1)
         {
-          System.Console.WriteLine("Missing parameter for switch " + args[i]);
+          Console.WriteLine("Missing parameter for switch " + args[i]);
           StandardUsage();
           return;
         }
@@ -77,7 +77,7 @@
             comment = args[i + 1];
             break;
           default:
-            System.Console.WriteLine("Unknown switch " + args[i] + " ignored.");
+            Console.WriteLine("Unknown switch " + args[i] + " ignored.");
             break;
         }
 
@@ -93,48 +93,50 @@
 
       if (!File.Exists(inFileName))
       {
-        System.Console.WriteLine("I couldn't find " + inFileName + ". Is it in another directory?");
+        Console.WriteLine("I couldn't find " + inFileName + ". Is it in another directory?");
         return;
       }
 
-      using (var image = Image.FromFile(inFileName))
-      using (var jpg = new JpegEncoder(image, File.OpenWrite(outFileName), comment, quality))
+      using var image = Image.FromFile(inFileName);
+      using var jpg = new JpegEncoder(image, File.OpenWrite(outFileName), comment, quality);
+      if (embFileName == null)
       {
-        if (embFileName == null)
-          jpg.Compress();
-        else
-          jpg.Compress(File.OpenRead(embFileName), password);
+        jpg.Compress();
+      }
+      else
+      {
+        jpg.Compress(File.OpenRead(embFileName), password);
       }
     }
 
     public static void StandardUsage()
     {
-      System.Console.WriteLine("F5/JpegEncoder for .NET(tm)");
-      System.Console.WriteLine("");
-      System.Console.WriteLine("Program usage: Embed [Options] \"InputImage\".\"ext\" [\"OutputFile\"[.jpg]]");
-      System.Console.WriteLine("");
-      System.Console.WriteLine("You have the following options:");
-      System.Console.WriteLine("-e <file to embed>\tdefault: embed nothing");
-      System.Console.WriteLine("-p <password>\t\tdefault: \"abc123\", only used when -e is specified");
-      System.Console.WriteLine("-q <quality 0 ... 100>\tdefault: 80");
-      System.Console.WriteLine("-c <comment>\t\tdefault: \"JPEG Encoder Copyright 1998, James R. Weeks and BioElectroMech.  \"");
-      System.Console.WriteLine("");
-      System.Console.WriteLine("\"InputImage\" is the name of an existing image in the current directory.");
-      System.Console.WriteLine("  (\"InputImage may specify a directory, too.) \"ext\" must be .tif, .gif,");
-      System.Console.WriteLine("  or .jpg.");
-      System.Console.WriteLine("Quality is an integer (0 to 100) that specifies how similar the compressed");
-      System.Console.WriteLine("  image is to \"InputImage.\"  100 is almost exactly like \"InputImage\" and 0 is");
-      System.Console.WriteLine("  most dissimilar.  In most cases, 70 - 80 gives very good results.");
-      System.Console.WriteLine("\"OutputFile\" is an optional argument.  If \"OutputFile\" isn't specified, then");
-      System.Console.WriteLine("  the input file name is adopted.  This program will NOT write over an existing");
-      System.Console.WriteLine("  file.  If a directory is specified for the input image, then \"OutputFile\"");
-      System.Console.WriteLine("  will be written in that directory.  The extension \".jpg\" may automatically be");
-      System.Console.WriteLine("  added.");
-      System.Console.WriteLine("");
-      System.Console.WriteLine("Copyright 1998 BioElectroMech and James R. Weeks.  Portions copyright IJG and");
-      System.Console.WriteLine("  Florian Raemy, LCAV.  See license.txt for details.");
-      System.Console.WriteLine("Visit BioElectroMech at www.obrador.com.  Email James@obrador.com.");
-      System.Console.WriteLine("Steganography added by Andreas Westfeld, westfeld@inf.tu-dresden.de");
+      Console.WriteLine("F5/JpegEncoder for .NET(tm)");
+      Console.WriteLine("");
+      Console.WriteLine("Program usage: Embed [Options] \"InputImage\".\"ext\" [\"OutputFile\"[.jpg]]");
+      Console.WriteLine("");
+      Console.WriteLine("You have the following options:");
+      Console.WriteLine("-e <file to embed>\tdefault: embed nothing");
+      Console.WriteLine("-p <password>\t\tdefault: \"abc123\", only used when -e is specified");
+      Console.WriteLine("-q <quality 0 ... 100>\tdefault: 80");
+      Console.WriteLine("-c <comment>\t\tdefault: \"JPEG Encoder Copyright 1998, James R. Weeks and BioElectroMech.  \"");
+      Console.WriteLine("");
+      Console.WriteLine("\"InputImage\" is the name of an existing image in the current directory.");
+      Console.WriteLine("  (\"InputImage may specify a directory, too.) \"ext\" must be .tif, .gif,");
+      Console.WriteLine("  or .jpg.");
+      Console.WriteLine("Quality is an integer (0 to 100) that specifies how similar the compressed");
+      Console.WriteLine("  image is to \"InputImage.\"  100 is almost exactly like \"InputImage\" and 0 is");
+      Console.WriteLine("  most dissimilar.  In most cases, 70 - 80 gives very good results.");
+      Console.WriteLine("\"OutputFile\" is an optional argument.  If \"OutputFile\" isn't specified, then");
+      Console.WriteLine("  the input file name is adopted.  This program will NOT write over an existing");
+      Console.WriteLine("  file.  If a directory is specified for the input image, then \"OutputFile\"");
+      Console.WriteLine("  will be written in that directory.  The extension \".jpg\" may automatically be");
+      Console.WriteLine("  added.");
+      Console.WriteLine("");
+      Console.WriteLine("Copyright 1998 BioElectroMech and James R. Weeks.  Portions copyright IJG and");
+      Console.WriteLine("  Florian Raemy, LCAV.  See license.txt for details.");
+      Console.WriteLine("Visit BioElectroMech at www.obrador.com.  Email James@obrador.com.");
+      Console.WriteLine("Steganography added by Andreas Westfeld, westfeld@inf.tu-dresden.de");
     }
   }
 }
