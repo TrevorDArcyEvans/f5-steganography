@@ -1,4 +1,4 @@
-﻿namespace F5
+﻿namespace F5.Console
 {
   using System;
   using System.Linq;
