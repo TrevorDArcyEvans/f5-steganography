@@ -12,9 +12,12 @@ public sealed class JpegEncoder_Tests
   {
     using var image = Image.FromFile("borneo.jpg");
     using var jpg = new JpegEncoder(image, File.OpenWrite("borneo-embed.jpg"), null);
+    using var ms = new MemoryStream();
+    using var strm = new StreamWriter(ms);
+    strm.Write("I Am Groot");
+    strm.Flush();
+    ms.Position = 0;
 
-    // TODO   compress stream with pwd
-    // "I Am Groot"
-    jpg.Compress();
+    jpg.Compress(ms, "abc123");
   }
 }

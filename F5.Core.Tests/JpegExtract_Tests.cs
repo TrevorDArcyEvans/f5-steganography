@@ -8,7 +8,8 @@ public sealed class JpegExtract_Tests
   [Test]
   public void Extract()
   {
-    using var extractor = new JpegExtract(File.OpenWrite("borneo-extract.txt"), "abc123");
+    using var ms = new MemoryStream();
+    using var extractor = new JpegExtract(ms, "abc123");
     extractor.Extract(File.OpenRead("borneo-embed.jpg"));
   }
 }
