@@ -1,10 +1,10 @@
-﻿namespace F5.James
+﻿namespace F5.Core.James
 {
   using System;
   using System.Drawing;
   using System.Drawing.Imaging;
   using System.Runtime.InteropServices;
-  using F5.Util;
+  using F5.Core.Util;
 
   internal sealed class JpegInfo
   {

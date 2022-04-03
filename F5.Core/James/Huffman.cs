@@ -1,8 +1,8 @@
-﻿namespace F5.James
+﻿namespace F5.Core.James
 {
   using System.Collections.Generic;
   using System.IO;
-  using F5.Util;
+  using F5.Core.Util;
 
   internal sealed class Huffman
   {

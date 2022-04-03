@@ -3,8 +3,8 @@
   using System;
   using System.IO;
   using System.Text;
-  using F5.Crypt;
-  using F5.Ortega;
+  using F5.Core.Crypt;
+  using F5.Core.Ortega;
   using log4net;
 
   public class JpegExtract : IDisposable

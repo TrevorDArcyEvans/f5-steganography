@@ -1,4 +1,4 @@
-﻿namespace F5.Util
+﻿namespace F5.Core.Util
 {
   internal static class ArrayHelper
   {

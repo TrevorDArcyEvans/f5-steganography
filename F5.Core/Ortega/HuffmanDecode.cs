@@ -1,8 +1,8 @@
-﻿namespace F5.Ortega
+﻿namespace F5.Core.Ortega
 {
   using System;
   using System.IO;
-  using F5.Util;
+  using F5.Core.Util;
   using log4net;
 
   internal sealed class HuffmanDecode : IDisposable

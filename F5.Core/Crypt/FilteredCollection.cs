@@ -1,4 +1,4 @@
-﻿namespace F5.Crypt
+﻿namespace F5.Core.Crypt
 {
   using System.Collections.Generic;
 

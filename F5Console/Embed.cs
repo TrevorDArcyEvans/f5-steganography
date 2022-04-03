@@ -3,7 +3,7 @@
   using System;
   using System.Drawing;
   using System.IO;
-  using F5.James;
+  using F5.Core.James;
 
   public static class Embed
   {

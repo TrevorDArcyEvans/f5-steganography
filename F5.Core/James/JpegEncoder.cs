@@ -1,13 +1,14 @@
-﻿namespace F5.James
+﻿namespace F5.Core.James
 {
   using System;
   using System.Collections.Generic;
   using System.Drawing;
   using System.IO;
   using System.Text;
-  using F5.Crypt;
-  using F5.Util;
+  using F5.Core.Crypt;
+  using F5.Core.Util;
   using log4net;
+
 
   public sealed class JpegEncoder : IDisposable
   {

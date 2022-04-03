@@ -7,8 +7,8 @@
     <ProjectGuid>{30813360-2C3C-4894-9C3E-BF092C3B4B7A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>F5Lib</RootNamespace>
-    <AssemblyName>F5Lib</AssemblyName>
+    <RootNamespace>F5.Core</RootNamespace>
+    <AssemblyName>F5.Core</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

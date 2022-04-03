@@ -1,4 +1,4 @@
-﻿namespace F5.Crypt
+﻿namespace F5.Core.Crypt
 {
   using Org.BouncyCastle.Crypto.Digests;
   using Org.BouncyCastle.Crypto.Prng;
