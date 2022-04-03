@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Crypt\F5Random.cs" />
+    <Compile Include="Crypt\FilteredCollection.cs" />
     <Compile Include="Crypt\Permutation.cs" />
     <Compile Include="Util\ArrayHelper.cs" />
     <Compile Include="Util\EmbedData.cs" />
