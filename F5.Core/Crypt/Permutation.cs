@@ -14,8 +14,10 @@ internal sealed class Permutation
     // To create the shuffled sequence, we initialise an array
     // with the integers 0 ... (size-1).
     for (i = 0; i < size; i++)
+    {
       // initialise with "size" integers
       shuffled[i] = i;
+    }
     var maxRandom = size; // set number of entries to shuffle
     for (i = 0; i < size; i++)
     {
@@ -29,9 +31,7 @@ internal sealed class Permutation
 
   private static void Swap(ref int a, ref int b)
   {
-    var temp = a;
-    a = b;
-    b = temp;
+    (a, b) = (b, a);
   }
 
   /// <summary>

@@ -5,11 +5,11 @@ using System.IO;
 
 internal sealed class EmbedData : IDisposable
 {
-  private readonly Stream data;
+  private readonly Stream _data;
 
   internal EmbedData(Stream data)
   {
-    this.data = data;
+    this._data = data;
     Seek(0, SeekOrigin.Begin);
   }
 
@@ -18,13 +18,13 @@ internal sealed class EmbedData : IDisposable
   {
   }
 
-  public long Available => data.Length - data.Position;
+  public long Available => _data.Length - _data.Position;
 
-  public long Length => data.Length;
+  public long Length => _data.Length;
 
   public byte Read()
   {
-    var b = data.ReadByte();
+    var b = _data.ReadByte();
     return (byte)(b == -1 ? 0 : b);
   }
 
@@ -41,12 +41,12 @@ internal sealed class EmbedData : IDisposable
 
   public void Close()
   {
-    data.Close();
+    _data.Close();
   }
 
   public long Seek(long offset, SeekOrigin origin)
   {
-    return data.Seek(offset, origin);
+    return _data.Seek(offset, origin);
   }
 
   #region IDisposable
@@ -69,7 +69,7 @@ internal sealed class EmbedData : IDisposable
     if (_disposed)
       return;
     if (disposing)
-      data.Dispose();
+      _data.Dispose();
     _disposed = true;
   }
 

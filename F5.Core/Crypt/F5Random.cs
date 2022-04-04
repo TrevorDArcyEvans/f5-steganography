@@ -1,43 +1,12 @@
 ﻿namespace F5.Core.Crypt;
 
-using Org.BouncyCastle.Crypto.Digests;
-using Org.BouncyCastle.Crypto.Prng;
-
-public class BufferedSecureRandom
+internal sealed class F5Random
 {
-  private readonly byte[] buffer;
-  private readonly int bufferSize;
-  private readonly DigestRandomGenerator random;
-  private int current;
-
-  public BufferedSecureRandom(byte[] password, int bufferSize = 1024)
-  {
-    this.bufferSize = bufferSize;
-    buffer = new byte[bufferSize];
-    random = new DigestRandomGenerator(new Sha1Digest());
-    random.AddSeedMaterial(password);
-    random.NextBytes(buffer);
-  }
-
-  public byte Next()
-  {
-    if (current >= bufferSize)
-    {
-      random.NextBytes(buffer);
-      current = 0;
-    }
-
-    return buffer[current++];
-  }
-}
-
-internal class F5Random
-{
-  private readonly BufferedSecureRandom random;
+  private readonly BufferedSecureRandom _random;
 
   public F5Random(byte[] password)
   {
-    random = new BufferedSecureRandom(password);
+    _random = new BufferedSecureRandom(password);
   }
 
   /// <summary>
@@ -46,7 +15,7 @@ internal class F5Random
   /// <returns>random signed byte</returns>
   public int GetNextByte()
   {
-    return random.Next();
+    return _random.Next();
   }
 
   /// <summary>

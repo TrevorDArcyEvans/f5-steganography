@@ -3,7 +3,7 @@
 using System;
 using System.Linq;
 
-internal sealed class Program
+internal static class Program
 {
   public static void Main(string[] args)
   {

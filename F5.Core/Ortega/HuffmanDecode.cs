@@ -57,7 +57,7 @@ internal sealed class HuffmanDecode : IDisposable
 
   private readonly EmbedData dis;
   private readonly int[][] HuffVal = new int[4][];
-  private int i, j, hftbl;
+  private int hftbl;
   private int K, Ssss, RS, R, J;
 
   // Instance variables
@@ -134,7 +134,7 @@ internal sealed class HuffmanDecode : IDisposable
     Ta = new int[Ns];
 
     // get table information
-    for (i = 0; i < Ns; i++)
+    for (var i = 0; i < Ns; i++)
     {
       Cs[i] = dis.Read();
       Td[i] = dis.Read();
@@ -159,23 +159,27 @@ internal sealed class HuffmanDecode : IDisposable
     {
       // Get component 1 of MCU
       for (var nComponent = 0; nComponent < Nf; nComponent++)
-      for (j = 0; j < H[nComponent] * V[nComponent]; j++)
       {
-        // Get DC coefficient
-        hftbl = Td[nComponent] * 2;
-        tmp = DECODE();
-        Diff = Receive(tmp);
-        ZZ[0] = PRED[0] + Extend(Diff, tmp);
-        PRED[nComponent] = ZZ[0];
+        for (var j = 0; j < H[nComponent] * V[nComponent]; j++)
+        {
+          // Get DC coefficient
+          hftbl = Td[nComponent] * 2;
+          tmp = DECODE();
+          Diff = Receive(tmp);
+          ZZ[0] = PRED[0] + Extend(Diff, tmp);
+          PRED[nComponent] = ZZ[0];
 
-        // Get AC coefficients
-        hftbl = Ta[nComponent] * 2 + 1;
-        Decode_AC_Coefficients();
+          // Get AC coefficients
+          hftbl = Ta[nComponent] * 2 + 1;
+          Decode_AC_Coefficients();
 
-        for (i = 0; i < 64; i++)
-          // Zickzack???
-          // buff[pos++]=ZZ[deZigZag[lp]];
-          buff[pos++] = ZZ[i];
+          for (var i = 0; i < 64; i++)
+          {
+            // Zickzack???
+            // buff[pos++]=ZZ[deZigZag[lp]];
+            buff[pos++] = ZZ[i];
+          }
+        }
       }
 
       MCUCount++;
@@ -186,7 +190,10 @@ internal sealed class HuffmanDecode : IDisposable
         for (var nComponent = 0; nComponent < Nf; nComponent++) PRED[nComponent] = 0;
         dis.Read();
         int tmpB = dis.Read();
-        if (tmpB == EOI) break;
+        if (tmpB == EOI)
+        {
+          break;
+        }
       }
 
       if (dis.Available <= 2)
@@ -194,7 +201,10 @@ internal sealed class HuffmanDecode : IDisposable
         if (dis.Available == 2)
         {
           dis.Read();
-          if (dis.Read() != EOI) logger.Warn("file does not end with EOI");
+          if (dis.Read() != EOI)
+          {
+            logger.Warn("file does not end with EOI");
+          }
         }
         else
         {
@@ -211,9 +221,8 @@ internal sealed class HuffmanDecode : IDisposable
 
   private int DECODE()
   {
-    int value;
     var cd = NextBit();
-    i = 1;
+    var i = 1;
     while (true)
       if (cd > MaxCode[hftbl][i])
       {
@@ -227,7 +236,7 @@ internal sealed class HuffmanDecode : IDisposable
 
     J = ValPtr[hftbl][i];
     J = J + cd - MinCode[hftbl][i];
-    value = HuffVal[hftbl][J];
+    var value = HuffVal[hftbl][J];
     return value;
   }
 
@@ -236,7 +245,10 @@ internal sealed class HuffmanDecode : IDisposable
     K = 1;
 
     // Zero out array ZZ[]
-    for (i = 0; i < 64; i++) ZZ[i] = 0;
+    for (var i = 0; i < 64; i++)
+    {
+      ZZ[i] = 0;
+    }
 
     while (true)
     {
@@ -247,16 +259,23 @@ internal sealed class HuffmanDecode : IDisposable
       if (Ssss == 0)
       {
         if (R == 15)
+        {
           K += 16;
+        }
         else
+        {
           return;
+        }
       }
       else
       {
         K = K + R;
         Decode_ZZ(K);
         if (K == 63)
+        {
           return;
+        }
+
         K++;
       }
     }
@@ -293,17 +312,11 @@ internal sealed class HuffmanDecode : IDisposable
       Tc >>= 4;
       if (Th == 0)
       {
-        if (Tc == 0)
-          FillDHT(0);
-        else
-          FillDHT(1);
+        FillDHT(Tc == 0 ? 0 : 1);
       }
       else
       {
-        if (Tc == 0)
-          FillDHT(2);
-        else
-          FillDHT(3);
+        FillDHT(Tc == 0 ? 2 : 3);
       }
     }
   }
@@ -316,7 +329,10 @@ internal sealed class HuffmanDecode : IDisposable
     Tq = Pq & 0x0f;
     Pq >>= 4;
 
-    for (i = 0; i < 64; i++) QNT[Tq][i] = dis.Read();
+    for (var i = 0; i < 64; i++)
+    {
+      QNT[Tq][i] = dis.Read();
+    }
   }
 
   private void SetDRI()
@@ -402,13 +418,18 @@ internal sealed class HuffmanDecode : IDisposable
     blocks = GetBlockCount() / 6;
 
     // decode image data and return image data in array
-    for (j = 0; j < blocks; j++)
+    for (var j = 0; j < blocks; j++)
     {
       // Get DC coefficient
       if (Td == 0)
+      {
         hftbl = 0;
+      }
       else
+      {
         hftbl = 2;
+      }
+
       tmp = DECODE();
       Diff = Receive(tmp);
       ZZ[0] = Pred + Extend(Diff, tmp);
@@ -416,18 +437,30 @@ internal sealed class HuffmanDecode : IDisposable
 
       // Get AC coefficients
       if (Ta == 0)
+      {
         hftbl = 1;
+      }
       else
+      {
         hftbl = 3;
+      }
+
       Decode_AC_Coefficients();
 
       // dezigzag and dequantize block
-      for (i = 0; i < 64; i++) Block[deZZ[i, 0], deZZ[i, 1]] = ZZ[i] * QNT[0][i];
+      for (var i = 0; i < 64; i++)
+      {
+        Block[deZZ[i, 0], deZZ[i, 1]] = ZZ[i] * QNT[0][i];
+      }
 
       // store blocks in buffer
       for (x = 0; x < 8; x++)
-      for (y = 0; y < 8; y++)
-        buffer[j, x, y] = Block[x, y];
+      {
+        for (y = 0; y < 8; y++)
+        {
+          buffer[j, x, y] = Block[x, y];
+        }
+      }
     }
 
     dis.Close();
@@ -438,17 +471,17 @@ internal sealed class HuffmanDecode : IDisposable
   /// </summary>
   private int NextBit()
   {
-    int b2;
-    int bit;
-
     if (CNT == 0)
     {
       CNT = 8;
       B = dis.Read();
-      if (255 == B) b2 = dis.Read();
+      if (255 == B)
+      {
+        int b2 = dis.Read();
+      }
     }
 
-    bit = B & 0X80; // get MSBit of B
+    var bit = B & 0X80;
     bit >>= 7; // move MSB to LSB
     CNT--; // Decrement counter
     B <<= 1; // Shift left one bit
@@ -482,13 +515,18 @@ internal sealed class HuffmanDecode : IDisposable
     blocks = GetBlockCount() / 6;
 
     // decode image data and return image data in array
-    for (j = 0; j < blocks; j++)
+    for (var j = 0; j < blocks; j++)
     {
       // Get DC coefficient
       if (Td == 0)
+      {
         hftbl = 0;
+      }
       else
+      {
         hftbl = 2;
+      }
+
       tmp = DECODE();
       Diff = Receive(tmp);
       ZZ[0] = Pred + Extend(Diff, tmp);
@@ -496,19 +534,31 @@ internal sealed class HuffmanDecode : IDisposable
 
       // Get AC coefficients
       if (Ta == 0)
+      {
         hftbl = 1;
+      }
       else
+      {
         hftbl = 3;
+      }
+
       Decode_AC_Coefficients();
 
       // dezigzag
-      for (i = 0; i < 64; i++) block[deZZ[i, 0], deZZ[i, 1]] = ZZ[i];
+      for (var i = 0; i < 64; i++)
+      {
+        block[deZZ[i, 0], deZZ[i, 1]] = ZZ[i];
+      }
 
       // store blocks in buffer
       logger.Info(j + " ");
       for (x = 0; x < 8; x++)
-      for (y = 0; y < 8; y++)
-        buffer[j, x, y] = block[x, y];
+      {
+        for (y = 0; y < 8; y++)
+        {
+          buffer[j, x, y] = block[x, y];
+        }
+      }
     }
 
     dis.Close();
@@ -520,19 +570,21 @@ internal sealed class HuffmanDecode : IDisposable
     while (true)
     {
       if (i == sss)
+      {
         return v;
+      }
+
       i++;
       v = (v << 1) + NextBit();
     }
   }
 
   // Return image data for RGB images
-  public void RGB_Decode(int[,,] Lum)
+  public void RGB_Decode(int[,,] lum)
   {
-    int x, y, a, b, line, tmp;
+    int x, y, a, b;
     var sz = X * Y;
-    int blocks;
-    var Block = new int[8, 8];
+    var block = new int[8, 8];
     int[] Cs, Ta, Td;
     int[] PRED = { 0, 0, 0 };
 
@@ -544,7 +596,7 @@ internal sealed class HuffmanDecode : IDisposable
     Ta = new int[Ns];
 
     // get table information
-    for (i = 0; i < Ns; i++)
+    for (var i = 0; i < Ns; i++)
     {
       Cs[i] = dis.Read();
       Td[i] = dis.Read();
@@ -560,14 +612,15 @@ internal sealed class HuffmanDecode : IDisposable
 
     // Calculate the Number of blocks encoded
     // blocks = X * Y / 64;
-    blocks = GetBlockCount() / 6;
+    var blocks = GetBlockCount() / 6;
 
     // decode image data and return image data in array
     for (a = 0; a < 32; a++)
     for (b = 0; b < 32; b++)
     {
       // Get component 1 of MCU
-      for (j = 0; j < 4; j++)
+      int tmp;
+      for (var j = 0; j < 4; j++)
       {
         // Get DC coefficient
         hftbl = 0;
@@ -581,21 +634,25 @@ internal sealed class HuffmanDecode : IDisposable
         Decode_AC_Coefficients();
 
         // dezigzag and dequantize block
-        for (i = 0; i < 64; i++) Block[deZZ[i, 0], deZZ[i, 1]] = ZZ[i] * QNT[0][i];
+        for (var i = 0; i < 64; i++)
+        {
+          block[deZZ[i, 0], deZZ[i, 1]] = ZZ[i] * QNT[0][i];
+        }
 
-        if (j < 2)
-          line = 0;
-        else
-          line = 62;
+        var line = j < 2 ? 0 : 62;
 
         // store blocks in buffer
         for (x = 0; x < 8; x++)
-        for (y = 0; y < 8; y++)
-          Lum[b * 2 + j + line + a * 128, x, y] = Block[x, y];
+        {
+          for (y = 0; y < 8; y++)
+          {
+            lum[b * 2 + j + line + a * 128, x, y] = block[x, y];
+          }
+        }
       }
 
       // getComponent 2 and 3 of image
-      for (j = 0; j < 2; j++)
+      for (var j = 0; j < 2; j++)
       {
         // Get DC coefficient
         hftbl = 2;
@@ -609,17 +666,32 @@ internal sealed class HuffmanDecode : IDisposable
         Decode_AC_Coefficients();
 
         // dezigzag and dequantize block
-        for (i = 0; i < 64; i++) Block[deZZ[i, 0], deZZ[i, 1]] = ZZ[i] * QNT[1][i];
+        for (var i = 0; i < 64; i++)
+        {
+          block[deZZ[i, 0], deZZ[i, 1]] = ZZ[i] * QNT[1][i];
+        }
 
         // store blocks in buffer
         if (j == 0)
+        {
           for (x = 0; x < 8; x++)
-          for (y = 0; y < 8; y++)
-            Cb[a * 32 + b, x, y] = Block[x, y];
+          {
+            for (y = 0; y < 8; y++)
+            {
+              Cb[a * 32 + b, x, y] = block[x, y];
+            }
+          }
+        }
         else
+        {
           for (x = 0; x < 8; x++)
-          for (y = 0; y < 8; y++)
-            Cr[a * 32 + b, x, y] = Block[x, y];
+          {
+            for (y = 0; y < 8; y++)
+            {
+              Cr[a * 32 + b, x, y] = block[x, y];
+            }
+          }
+        }
       }
     }
 
@@ -651,7 +723,7 @@ internal sealed class HuffmanDecode : IDisposable
     T = new int[Nf];
 
     // Read in quatization table identifiers
-    for (i = 0; i < Nf; i++)
+    for (var i = 0; i < Nf; i++)
     {
       C[i] = dis.Read();
       H[i] = dis.Read();
@@ -679,9 +751,15 @@ internal sealed class HuffmanDecode : IDisposable
   private void Dispose(bool disposing)
   {
     if (_disposed)
+    {
       return;
+    }
+
     if (disposing)
+    {
       dis.Dispose();
+    }
+
     _disposed = true;
   }
 

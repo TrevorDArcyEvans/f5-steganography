@@ -16,7 +16,7 @@ public sealed class JpegEncoder : IDisposable
   private readonly int _imageHeight, _imageWidth;
   private DCT _dct;
   private EmbedData _embeddedData;
-  private readonly Huffman _huffman;
+  private readonly Huffman _huffman = new();
   private readonly JpegInfo _jpegObj;
   private int n, _quality;
 
@@ -43,7 +43,6 @@ public sealed class JpegEncoder : IDisposable
     _output = new BufferedStream(output);
     _output.SetLength(0);
     _dct = new DCT(_quality);
-    _huffman = new Huffman();
   }
 
   public int Quality

@@ -16,11 +16,11 @@ internal sealed class HuffTable
   private readonly int[] HuffSize = new int[257];
 
   // Instance variables
-  internal int[] HuffVal = new int[256];
-  private int si, i, j, k, last_k, code;
-  internal int[] MaxCode = new int[18];
-  internal int[] MinCode = new int[17];
-  internal int[] ValPtr = new int[17];
+  internal readonly int[] HuffVal = new int[256];
+  private int last_k;
+  internal readonly int[] MaxCode = new int[18];
+  internal readonly int[] MinCode = new int[17];
+  internal readonly int[] ValPtr = new int[17];
 
   // Constructor Methods
   internal HuffTable(Stream d, int l)
@@ -52,33 +52,41 @@ internal sealed class HuffTable
     }
 
     // Read in HUFFVAL
-    for (var x = 0; x < count; x++) HuffVal[x] = dis.Read();
+    for (var x = 0; x < count; x++)
+    {
+      HuffVal[x] = dis.Read();
+    }
     return count;
   }
 
   private void SetOrderCodes()
   {
     // Order Codes Flow Chart C.3
-    k = 0;
+    var k = 0;
 
     while (true)
     {
-      i = HuffVal[k];
+      var i = HuffVal[k];
       EHUFCO[i] = HuffCode[k];
       EHUFSI[i] = HuffSize[k++];
-      if (k >= last_k) break;
+      if (k >= last_k)
+      {
+        break;
+      }
     }
   }
 
   private void SetDecoderTables()
   {
     // Decoder table generation Flow Chart F.15
-    i = 0;
-    j = 0;
+    var i = 0;
+    var j = 0;
     while (true)
     {
       if (++i > 16)
+      {
         return;
+      }
 
       if (Bits[i] == 0)
       {
@@ -97,22 +105,31 @@ internal sealed class HuffTable
   private void SetCodeTable()
   {
     // Generate Code table Flow Chart C.2
-    k = 0;
-    code = 0;
-    si = HuffSize[0];
+    var k = 0;
+    var code = 0;
+    var si = HuffSize[0];
     while (true)
     {
       HuffCode[k++] = code++;
 
-      if (HuffSize[k] == si) continue;
+      if (HuffSize[k] == si)
+      {
+        continue;
+      }
 
-      if (HuffSize[k] == 0) break;
+      if (HuffSize[k] == 0)
+      {
+        break;
+      }
 
       while (true)
       {
         code <<= 1;
         si++;
-        if (HuffSize[k] == si) break;
+        if (HuffSize[k] == si)
+        {
+          break;
+        }
       }
     }
   }
@@ -120,15 +137,18 @@ internal sealed class HuffTable
   private void SetSizeTable()
   {
     // Generate HUFFSIZE table Flow Chart C.1
-    k = 0;
-    i = 1;
-    j = 1;
+    var k = 0;
+    var i = 1;
+    var j = 1;
     while (true)
       if (j > Bits[i])
       {
         j = 1;
         i++;
-        if (i > 16) break;
+        if (i > 16)
+        {
+          break;
+        }
       }
       else
       {

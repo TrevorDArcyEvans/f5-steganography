@@ -135,13 +135,13 @@ internal sealed class JpegInfo
 
   private float[][] DownSample(float[][] C, int comp)
   {
-    int inrow = 0, incol = 0, outrow, outcol, bias;
+    int inrow = 0, incol = 0, bias;
     var output = ArrayHelper.CreateJagged<float>(_compHeight[comp], _compWidth[comp]);
     float temp;
-    for (outrow = 0; outrow < _compHeight[comp]; outrow++)
+    for (var outrow = 0; outrow < _compHeight[comp]; outrow++)
     {
       bias = 1;
-      for (outcol = 0; outcol < _compWidth[comp]; outcol++)
+      for (var outcol = 0; outcol < _compWidth[comp]; outcol++)
       {
         temp = C[inrow][incol++]; // 00
         temp += C[inrow++][incol--]; // 01

@@ -112,13 +112,12 @@ internal sealed class Huffman
 
   private void CalcMatrix(int[] bits, int[] val, int[][] matrix)
   {
-    int i, j, v;
     int p = 0, code = 0;
-    for (j = 1; j < bits.Length; j++)
+    for (var j = 1; j < bits.Length; j++)
     {
-      for (i = 0; i < bits[j]; i++)
+      for (var i = 0; i < bits[j]; i++)
       {
-        v = val[p];
+        var v = val[p];
         matrix[v][0] = code++;
         matrix[v][1] = j;
         p++;
@@ -174,7 +173,9 @@ internal sealed class Huffman
       var c = (PutBuffer >> 16) & 0xFF;
       WriteByte(streamOut, c);
       if (c == 0xFF)
+      {
         WriteByte(streamOut, 0);
+      }
       PutBuffer <<= 8;
       PutBits -= 8;
     }
@@ -197,7 +198,9 @@ internal sealed class Huffman
       var c = (PutBuffer >> 16) & 0xFF;
       WriteByte(outStream, c);
       if (c == 0xFF)
+      {
         WriteByte(outStream, 0);
+      }
       PutBuffer <<= 8;
       PutBits -= 8;
     }
@@ -214,17 +217,17 @@ internal sealed class Huffman
   /// </summary>
   public void HuffmanBlockEncoder(Stream streamOut, int[] zigzag, int prec, int DCcode, int ACcode)
   {
-    int temp, temp2, nbits, k, r, i;
+    int temp2;
 
     // The DC portion
-    temp = temp2 = zigzag[0] - prec;
+    var temp = temp2 = zigzag[0] - prec;
     if (temp < 0)
     {
       temp = -temp;
       temp2--;
     }
 
-    nbits = 0;
+    var nbits = 0;
     while (temp != 0)
     {
       nbits++;
@@ -237,8 +240,8 @@ internal sealed class Huffman
     if (nbits != 0) BufferIt(streamOut, temp2, nbits);
 
     // The AC portion
-    r = 0;
-    for (k = 1; k < 64; k++)
+    var r = 0;
+    for (var k = 1; k < 64; k++)
       if ((temp = zigzag[JpegNaturalOrder[k]]) == 0)
       {
         r++;
@@ -260,7 +263,7 @@ internal sealed class Huffman
 
         nbits = 1;
         while ((temp >>= 1) != 0) nbits++;
-        i = (r << 4) + nbits;
+        var i = (r << 4) + nbits;
         BufferIt(streamOut, AC_Matrix[ACcode][i][0], AC_Matrix[ACcode][i][1]);
         BufferIt(streamOut, temp2, nbits);
 

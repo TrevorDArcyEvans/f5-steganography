@@ -4,27 +4,27 @@ using System.Collections.Generic;
 
 internal sealed class FilteredCollection
 {
-  private readonly int[] coeff;
-  private readonly int[] iterable;
-  private int now;
+  private readonly int[] _coeff;
+  private readonly int[] _iterable;
+  private int _now;
 
   public FilteredCollection(int[] iterable, int[] coeff)
   {
-    this.iterable = iterable;
-    this.coeff = coeff;
+    _iterable = iterable;
+    _coeff = coeff;
   }
 
   public FilteredCollection(int[] iterable, int[] coeff, int startIndex)
     : this(iterable, coeff)
   {
-    now = startIndex;
+    _now = startIndex;
   }
 
-  public int Current => iterable[now];
+  public int Current => _iterable[_now];
 
   private bool IsValid(int n)
   {
-    return n % 64 != 0 && coeff[n] != 0;
+    return n % 64 != 0 && _coeff[n] != 0;
   }
 
   public List<int> Offer(int count)
@@ -32,12 +32,12 @@ internal sealed class FilteredCollection
     var result = new List<int>(count);
     while (count > 0)
     {
-      while (now < iterable.Length && !IsValid(Current)) now++;
-      if (now < iterable.Length)
+      while (_now < _iterable.Length && !IsValid(Current)) _now++;
+      if (_now < _iterable.Length)
       {
         count--;
         result.Add(Current);
-        now++;
+        _now++;
       }
     }
 

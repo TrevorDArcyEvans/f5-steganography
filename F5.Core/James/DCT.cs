@@ -46,15 +46,14 @@ internal sealed class DCT
   /// </summary>
   private void InitMatrix(int quality)
   {
-    // converting quality setting to that specified in the jpeg_quality_scaling method in the IJG Jpeg-6a C libraries
-    if (quality <= 0)
-      quality = 1;
-    else if (quality > 100)
-      quality = 100;
-    else if (quality < 50)
-      quality = 5000 / quality;
-    else
-      quality = 200 - quality * 2;
+    quality = quality switch
+    {
+      // converting quality setting to that specified in the jpeg_quality_scaling method in the IJG Jpeg-6a C libraries
+      <= 0 => 1,
+      > 100 => 100,
+      < 50 => 5000 / quality,
+      _ => 200 - quality * 2
+    };
 
     // Quantitization Matrix for luminance.
     var quantum_luminance = new int[N * N]
@@ -96,15 +95,16 @@ internal sealed class DCT
   public int[] QuantizeBlock(double[][] inputData, int code)
   {
     var outputData = new int[N * N];
-    int i, j;
     var index = 0;
-    for (i = 0; i < N; i++)
-    for (j = 0; j < N; j++)
+    for (var i = 0; i < N; i++)
     {
-      // The second line results in significantly better compression.
-      outputData[index] = (int)Math.Round(inputData[i][j] * Divisors[code][index]);
-      // outputData[index] = (int)(((inputData[i, j] * (((double[])(Divisors[code]))[index])) + 16384.5) -16384);
-      index++;
+      for (var j = 0; j < N; j++)
+      {
+        // The second line results in significantly better compression.
+        outputData[index] = (int)Math.Round(inputData[i][j] * Divisors[code][index]);
+        // outputData[index] = (int)(((inputData[i, j] * (((double[])(Divisors[code]))[index])) + 16384.5) -16384);
+        index++;
+      }
     }
 
     return outputData;
@@ -117,13 +117,14 @@ internal sealed class DCT
   public int[] QuantizeBlockExtreme(double[][] inputData, int code)
   {
     var outputData = new int[N * N];
-    int i, j;
     var index = 0;
-    for (i = 0; i < N; i++)
-    for (j = 0; j < N; j++)
+    for (var i = 0; i < N; i++)
     {
-      outputData[index] = (int)Math.Round(inputData[i][j] / Quantum[code][index]);
-      index++;
+      for (var j = 0; j < N; j++)
+      {
+        outputData[index] = (int)Math.Round(inputData[i][j] / Quantum[code][index]);
+        index++;
+      }
     }
 
     return outputData;
@@ -138,14 +139,17 @@ internal sealed class DCT
     double tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
     double tmp10, tmp11, tmp12, tmp13;
     double z1, z2, z3, z4, z5, z11, z13;
-    int i, j;
 
     // Subtracts 128 from the input values
-    for (i = 0; i < N; i++)
-    for (j = 0; j < N; j++)
-      output[i][j] = input[i][j] - 128.0;
+    for (var i = 0; i < N; i++)
+    {
+      for (var j = 0; j < N; j++)
+      {
+        output[i][j] = input[i][j] - 128.0;
+      }
+    }
 
-    for (i = 0; i < N; i++)
+    for (var i = 0; i < N; i++)
     {
       tmp0 = output[i][0] + output[i][7];
       tmp7 = output[i][0] - output[i][7];
@@ -186,7 +190,7 @@ internal sealed class DCT
       output[i][7] = z11 - z4;
     }
 
-    for (i = 0; i < N; i++)
+    for (var i = 0; i < N; i++)
     {
       tmp0 = output[0][i] + output[7][i];
       tmp7 = output[0][i] - output[7][i];
@@ -242,16 +246,22 @@ internal sealed class DCT
   public static double[][] ForwardDCTExtreme(float[][] input)
   {
     var output = ArrayHelper.CreateJagged<double>(N, N);
-    int v, u, x, y;
-    for (v = 0; v < N; v++)
-    for (u = 0; u < N; u++)
+    for (var v = 0; v < N; v++)
     {
-      for (x = 0; x < N; x++)
-      for (y = 0; y < N; y++)
-        output[v][u] += input[x][y] * Math.Cos((2 * x + 1) * (double)u * Math.PI / 16)
-                                    * Math.Cos((2 * y + 1) * (double)v * Math.PI / 16);
-      output[v][u] *= 0.25 * (u == 0 ? 1.0 / Math.Sqrt(2) : 1.0)
-                           * (v == 0 ? 1.0 / Math.Sqrt(2) : 1.0);
+      for (var u = 0; u < N; u++)
+      {
+        for (var x = 0; x < N; x++)
+        {
+          for (var y = 0; y < N; y++)
+          {
+            output[v][u] += input[x][y] * Math.Cos((2 * x + 1) * (double)u * Math.PI / 16)
+                                        * Math.Cos((2 * y + 1) * (double)v * Math.PI / 16);
+          }
+        }
+
+        output[v][u] *= 0.25 * (u == 0 ? 1.0 / Math.Sqrt(2) : 1.0)
+                             * (v == 0 ? 1.0 / Math.Sqrt(2) : 1.0);
+      }
     }
 
     return output;
@@ -275,26 +285,30 @@ internal sealed class DCT
 
       var index = 0;
       for (var i = 0; i < N; i++)
-      for (var j = 0; j < N; j++)
       {
-        var temp = (Quantum[index] * quality + 50) / 100;
-        if (temp <= 0)
-          temp = 1;
-        else if (temp > 255)
-          temp = 255;
-        Quantum[index] = temp;
+        for (var j = 0; j < N; j++)
+        {
+          var temp = (Quantum[index] * quality + 50) / 100;
+          temp = temp switch
+          {
+            <= 0 => 1,
+            > 255 => 255,
+            _ => temp
+          };
+          Quantum[index] = temp;
 
-        // The divisors for the LL&M method (the slow integer method used in jpeg 6a library). 
-        // This method is currently (04/04/98) incompletely implemented.
-        // DivisorsLuminance[index] = ((double)quantum_luminance[index]) << 3;
-        // The divisors for the AAN method (the float method used in jpeg 6a library.
+          // The divisors for the LL&M method (the slow integer method used in jpeg 6a library). 
+          // This method is currently (04/04/98) incompletely implemented.
+          // DivisorsLuminance[index] = ((double)quantum_luminance[index]) << 3;
+          // The divisors for the AAN method (the float method used in jpeg 6a library.
 
-        // The divisors for the LL&M method (the slow integer method used in jpeg 6a library). 
-        // This method is currently (04/04/98) incompletely implemented.
-        // DivisorsChrominance[index] = ((double) quantum_chrominance[index]) << 3;
-        // The divisors for the AAN method (the float method used in jpeg 6a library.
-        Divisor[index] = 1.0 / (Quantum[index] * AANscaleFactor[i] * AANscaleFactor[j] * 8.0);
-        index++;
+          // The divisors for the LL&M method (the slow integer method used in jpeg 6a library). 
+          // This method is currently (04/04/98) incompletely implemented.
+          // DivisorsChrominance[index] = ((double) quantum_chrominance[index]) << 3;
+          // The divisors for the AAN method (the float method used in jpeg 6a library.
+          Divisor[index] = 1.0 / (Quantum[index] * AANscaleFactor[i] * AANscaleFactor[j] * 8.0);
+          index++;
+        }
       }
     }
   }
