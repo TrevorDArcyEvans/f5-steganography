@@ -6,14 +6,18 @@ using F5.Core;
 
 public sealed partial class Index
 {
-  private string MessageExtract { get; set; } = "I Am Groot";
+  private string MessageExtract { get; set; } = string.Empty;
   private string PasswordExtract { get; set; } = "abc123";
+  private bool IsFinishedExtract { get; set; }
 
   private async Task LoadFileExtract(InputFileChangeEventArgs e)
   {
-    await using var image = e.File.OpenReadStream();
+    IsFinishedExtract = false;
+    StateHasChanged();
+
+    await using var imageStrm = e.File.OpenReadStream();
     await using var imageData = new MemoryStream();
-    await image.CopyToAsync(imageData);
+    await imageStrm.CopyToAsync(imageData);
     imageData.Seek(0, SeekOrigin.Begin);
 
     await using var ms = new MemoryStream();
@@ -22,5 +26,8 @@ public sealed partial class Index
     ms.Position = 0;
     var sr = new StreamReader(ms);
     MessageExtract = await sr.ReadToEndAsync();
+
+    IsFinishedExtract = true;
+    StateHasChanged();
   }
 }
