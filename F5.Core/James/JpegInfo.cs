@@ -23,23 +23,25 @@ internal sealed class JpegInfo
   public readonly int[] HsampFactor = { 2, 1, 1 };
   public readonly int[] QtableNumber = { 0, 1, 1 };
   public readonly int[] VsampFactor = { 2, 1, 1 };
-  public int[] BlockHeight, BlockWidth;
-  private readonly Bitmap bmp;
-  public string Comment;
+  public readonly int[] BlockHeight;
+  public readonly int[] BlockWidth;
+  private readonly Bitmap _bmp;
+  public readonly string Comment;
 
-  internal float[][][] Components;
-  private readonly int[] compWidth;
-  private readonly int[] compHeight;
-  public int ImageHeight, ImageWidth;
+  internal readonly float[][][] Components;
+  private readonly int[] _compWidth;
+  private readonly int[] _compHeight;
+  public readonly int ImageHeight;
+  public readonly int ImageWidth;
 
   public JpegInfo(Image image, string comment)
   {
     Components = new float[NumberOfComponents][][];
-    compWidth = new int[NumberOfComponents];
-    compHeight = new int[NumberOfComponents];
+    _compWidth = new int[NumberOfComponents];
+    _compHeight = new int[NumberOfComponents];
     BlockWidth = new int[NumberOfComponents];
     BlockHeight = new int[NumberOfComponents];
-    bmp = (Bitmap)image;
+    _bmp = (Bitmap)image;
     ImageWidth = image.Width;
     ImageHeight = image.Height;
     Comment = comment ?? "JPEG Encoder Copyright 1998, James R. Weeks and BioElectroMech.  ";
@@ -71,33 +73,33 @@ internal sealed class JpegInfo
 
     for (i = 0; i < NumberOfComponents; i++)
     {
-      compWidth[i] = ImageWidth % 8 != 0 ? (int)Math.Ceiling(ImageWidth / 8.0) * 8 : ImageWidth;
-      compWidth[i] = compWidth[i] / MaxHsampFactor * HsampFactor[i];
-      BlockWidth[i] = (int)Math.Ceiling(compWidth[i] / 8.0);
+      _compWidth[i] = ImageWidth % 8 != 0 ? (int)Math.Ceiling(ImageWidth / 8.0) * 8 : ImageWidth;
+      _compWidth[i] = _compWidth[i] / MaxHsampFactor * HsampFactor[i];
+      BlockWidth[i] = (int)Math.Ceiling(_compWidth[i] / 8.0);
 
-      compHeight[i] = ImageHeight % 8 != 0 ? (int)Math.Ceiling(ImageHeight / 8.0) * 8 : ImageHeight;
-      compHeight[i] = compHeight[i] / MaxVsampFactor * VsampFactor[i];
-      BlockHeight[i] = (int)Math.Ceiling(compHeight[i] / 8.0);
+      _compHeight[i] = ImageHeight % 8 != 0 ? (int)Math.Ceiling(ImageHeight / 8.0) * 8 : ImageHeight;
+      _compHeight[i] = _compHeight[i] / MaxVsampFactor * VsampFactor[i];
+      BlockHeight[i] = (int)Math.Ceiling(_compHeight[i] / 8.0);
     }
 
-    var Y = ArrayHelper.CreateJagged<float>(compHeight[0], compWidth[0]);
-    var Cr1 = ArrayHelper.CreateJagged<float>(compHeight[0], compWidth[0]);
-    var Cb1 = ArrayHelper.CreateJagged<float>(compHeight[0], compWidth[0]);
-    var Cb2 = ArrayHelper.CreateJagged<float>(compHeight[1], compWidth[1]);
-    var Cr2 = ArrayHelper.CreateJagged<float>(compHeight[2], compWidth[2]);
+    var Y = ArrayHelper.CreateJagged<float>(_compHeight[0], _compWidth[0]);
+    var Cr1 = ArrayHelper.CreateJagged<float>(_compHeight[0], _compWidth[0]);
+    var Cb1 = ArrayHelper.CreateJagged<float>(_compHeight[0], _compWidth[0]);
+    var Cb2 = ArrayHelper.CreateJagged<float>(_compHeight[1], _compWidth[1]);
+    var Cr2 = ArrayHelper.CreateJagged<float>(_compHeight[2], _compWidth[2]);
 
-    using (bmp)
+    using (_bmp)
     {
-      width = bmp.Width;
-      height = bmp.Height;
-      var rect = new Rectangle(0, 0, bmp.Width, bmp.Height);
-      var bmpData = bmp.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+      width = _bmp.Width;
+      height = _bmp.Height;
+      var rect = new Rectangle(0, 0, _bmp.Width, _bmp.Height);
+      var bmpData = _bmp.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
       stride = bmpData.Stride;
       size = stride * height;
-      pixelSize = Image.GetPixelFormatSize(bmp.PixelFormat) / 8;
+      pixelSize = Image.GetPixelFormatSize(_bmp.PixelFormat) / 8;
       pixelData = new byte[size];
       Marshal.Copy(bmpData.Scan0, pixelData, 0, size);
-      bmp.UnlockBits(bmpData);
+      _bmp.UnlockBits(bmpData);
     }
 
     // In order to minimize the chance that grabPixels will throw an
@@ -138,12 +140,12 @@ internal sealed class JpegInfo
   private float[][] DownSample(float[][] C, int comp)
   {
     int inrow = 0, incol = 0, outrow, outcol, bias;
-    var output = ArrayHelper.CreateJagged<float>(compHeight[comp], compWidth[comp]);
+    var output = ArrayHelper.CreateJagged<float>(_compHeight[comp], _compWidth[comp]);
     float temp;
-    for (outrow = 0; outrow < compHeight[comp]; outrow++)
+    for (outrow = 0; outrow < _compHeight[comp]; outrow++)
     {
       bias = 1;
-      for (outcol = 0; outcol < compWidth[comp]; outcol++)
+      for (outcol = 0; outcol < _compWidth[comp]; outcol++)
       {
         temp = C[inrow][incol++]; // 00
         temp += C[inrow++][incol--]; // 01
