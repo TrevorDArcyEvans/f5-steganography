@@ -119,17 +119,18 @@ public sealed class JpegEncoder : IDisposable
   {
     var comment = Encoding.Default.GetBytes(_jpegObj.Comment);
     var length = comment.Length;
-    if (length > 0)
+    if (length <= 0)
     {
-      var COM = new byte[length + 4];
-      COM[0] = 0xFF; // comment marker
-      COM[1] = 0xFE; // comment marker
-      length += 2; // including length of length
-      COM[2] = (byte)((length >> 8) & 0xFF);
-      COM[3] = (byte)(length & 0xFF);
-      Array.Copy(comment, 0, COM, 4, comment.Length);
-      WriteArray(COM);
+      return;
     }
+    var COM = new byte[length + 4];
+    COM[0] = 0xFF; // comment marker
+    COM[1] = 0xFE; // comment marker
+    length += 2; // including length of length
+    COM[2] = (byte)((length >> 8) & 0xFF);
+    COM[3] = (byte)(length & 0xFF);
+    Array.Copy(comment, 0, COM, 4, comment.Length);
+    WriteArray(COM);
   }
 
   /// <summary>
@@ -227,7 +228,7 @@ public sealed class JpegEncoder : IDisposable
     WriteHeaderSOS();
   }
 
-  private int[] GetCoeff(int MinBlockWidth, int MinBlockHeight)
+  private int[] GetCoeff(int minBlockWidth, int minBlockHeight)
   {
     var dctArray1 = ArrayHelper.CreateJagged<float>(8, 8);
     var dctArray2 = ArrayHelper.CreateJagged<double>(8, 8);
@@ -242,9 +243,9 @@ public sealed class JpegEncoder : IDisposable
 
     // westfeld
     // Before we enter these loops, we initialise the coeff for steganography here:
-    for (r = 0; r < MinBlockHeight; r++)
+    for (r = 0; r < minBlockHeight; r++)
     {
-      for (c = 0; c < MinBlockWidth; c++)
+      for (c = 0; c < minBlockWidth; c++)
       {
         for (comp = 0; comp < JpegInfo.NumberOfComponents; comp++)
         {
@@ -263,9 +264,9 @@ public sealed class JpegEncoder : IDisposable
 
     Logger.Info("DCT/quantisation starts");
     Logger.Info(_imageWidth + " x " + _imageHeight);
-    for (r = 0; r < MinBlockHeight; r++)
+    for (r = 0; r < minBlockHeight; r++)
     {
-      for (c = 0; c < MinBlockWidth; c++)
+      for (c = 0; c < minBlockWidth; c++)
       {
         xpos = c * 8;
         ypos = r * 8;
@@ -343,23 +344,22 @@ public sealed class JpegEncoder : IDisposable
   ///   upper left of the image, it compresses 8x8 blocks of data until the
   ///   entire image has been compressed.
   /// </summary>
-  /// <param name="out"></param>
   private void WriteCompressedData()
   {
     // This initial setting of MinBlockWidth and MinBlockHeight is done to
     // ensure they start with values larger than will actually be the case.
-    var MinBlockWidth = _imageWidth % 8 != 0 ? (int)(Math.Floor(_imageWidth / 8.0) + 1) * 8 : _imageWidth;
-    var MinBlockHeight = _imageHeight % 8 != 0 ? (int)(Math.Floor(_imageHeight / 8.0) + 1) * 8 : _imageHeight;
+    var minBlockWidth = _imageWidth % 8 != 0 ? (int)(Math.Floor(_imageWidth / 8.0) + 1) * 8 : _imageWidth;
+    var minBlockHeight = _imageHeight % 8 != 0 ? (int)(Math.Floor(_imageHeight / 8.0) + 1) * 8 : _imageHeight;
     int comp, shuffledIndex;
     for (comp = 0; comp < JpegInfo.NumberOfComponents; comp++)
     {
-      MinBlockWidth = Math.Min(MinBlockWidth, _jpegObj.BlockWidth[comp]);
-      MinBlockHeight = Math.Min(MinBlockHeight, _jpegObj.BlockHeight[comp]);
+      minBlockWidth = Math.Min(minBlockWidth, _jpegObj.BlockWidth[comp]);
+      minBlockHeight = Math.Min(minBlockHeight, _jpegObj.BlockHeight[comp]);
     }
 
     var lastDCvalue = new int[JpegInfo.NumberOfComponents];
     var emptyArray = new int[64];
-    var coeff = GetCoeff(MinBlockWidth, MinBlockHeight);
+    var coeff = GetCoeff(minBlockWidth, minBlockHeight);
     var coeffCount = coeff.Length;
     int i, j, r, c;
     var expected = 0;
@@ -454,13 +454,18 @@ public sealed class JpegEncoder : IDisposable
       // We calculate n now
       for (i = 1; i < 8; i++)
       {
-        int usable;
         n = (1 << i) - 1;
-        usable = expected * i / n - expected * i / n % n;
+        var usable = expected * i / n - expected * i / n % n;
         usable /= 8;
-        if (usable == 0) break;
+        if (usable == 0)
+        {
+          break;
+        }
 
-        if (usable < byteToEmbed + 4) break;
+        if (usable < byteToEmbed + 4)
+        {
+          break;
+        }
       }
 
       var k = i - 1;
@@ -608,9 +613,9 @@ public sealed class JpegEncoder : IDisposable
 
     Logger.Info("Starting Huffman Encoding.");
     shuffledIndex = 0;
-    for (r = 0; r < MinBlockHeight; r++)
+    for (r = 0; r < minBlockHeight; r++)
     {
-      for (c = 0; c < MinBlockWidth; c++)
+      for (c = 0; c < minBlockWidth; c++)
       {
         for (comp = 0; comp < JpegInfo.NumberOfComponents; comp++)
         {
