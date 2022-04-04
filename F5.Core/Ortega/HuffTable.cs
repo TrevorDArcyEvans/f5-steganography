@@ -6,7 +6,7 @@ using Util;
 internal sealed class HuffTable
 {
   // Declare input steam
-  private readonly EmbedData dis;
+  private readonly EmbedData _dis;
 
   private readonly int[] Bits = new int[17];
   private readonly int[] EHUFCO = new int[257];
@@ -23,14 +23,14 @@ internal sealed class HuffTable
   internal readonly int[] ValPtr = new int[17];
 
   // Constructor Methods
-  internal HuffTable(Stream d, int l)
-    : this(new EmbedData(d), l)
+  internal HuffTable(Stream d)
+    : this(new EmbedData(d))
   {
   }
 
-  internal HuffTable(EmbedData d, int l)
+  internal HuffTable(EmbedData d)
   {
-    dis = d;
+    _dis = d;
     // Get table data from input stream
     Len = 19 + GetTableData();
     SetSizeTable(); // Flow Chart C.1
@@ -47,14 +47,14 @@ internal sealed class HuffTable
     var count = 0;
     for (var x = 1; x < 17; x++)
     {
-      Bits[x] = dis.Read();
+      Bits[x] = _dis.Read();
       count += Bits[x];
     }
 
     // Read in HUFFVAL
     for (var x = 0; x < count; x++)
     {
-      HuffVal[x] = dis.Read();
+      HuffVal[x] = _dis.Read();
     }
     return count;
   }

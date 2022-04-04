@@ -290,7 +290,7 @@ internal sealed class HuffmanDecode : IDisposable
 
   private void FillDHT(int index)
   {
-    var ht = new HuffTable(dis, Lh);
+    var ht = new HuffTable(dis);
     Lh -= ht.Len;
     HuffVal[index] = ht.HuffVal;
     ValPtr[index] = ht.ValPtr;

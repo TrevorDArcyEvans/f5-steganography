@@ -160,28 +160,28 @@ internal sealed class Huffman
 
   private void BufferIt(Stream streamOut, int code, int size)
   {
-    var PutBuffer = code;
-    var PutBits = BufferPutBits;
+    var putBuffer = code;
+    var putBits = BufferPutBits;
 
-    PutBuffer &= (1 << size) - 1;
-    PutBits += size;
-    PutBuffer <<= 24 - PutBits;
-    PutBuffer |= BufferPutBuffer;
+    putBuffer &= (1 << size) - 1;
+    putBits += size;
+    putBuffer <<= 24 - putBits;
+    putBuffer |= BufferPutBuffer;
 
-    while (PutBits >= 8)
+    while (putBits >= 8)
     {
-      var c = (PutBuffer >> 16) & 0xFF;
+      var c = (putBuffer >> 16) & 0xFF;
       WriteByte(streamOut, c);
       if (c == 0xFF)
       {
         WriteByte(streamOut, 0);
       }
-      PutBuffer <<= 8;
-      PutBits -= 8;
+      putBuffer <<= 8;
+      putBits -= 8;
     }
 
-    BufferPutBuffer = PutBuffer;
-    BufferPutBits = PutBits;
+    BufferPutBuffer = putBuffer;
+    BufferPutBits = putBits;
   }
 
 
@@ -191,23 +191,23 @@ internal sealed class Huffman
   /// </summary>
   public void FlushBuffer(BufferedStream outStream)
   {
-    var PutBuffer = BufferPutBuffer;
-    var PutBits = BufferPutBits;
-    while (PutBits >= 8)
+    var putBuffer = BufferPutBuffer;
+    var putBits = BufferPutBits;
+    while (putBits >= 8)
     {
-      var c = (PutBuffer >> 16) & 0xFF;
+      var c = (putBuffer >> 16) & 0xFF;
       WriteByte(outStream, c);
       if (c == 0xFF)
       {
         WriteByte(outStream, 0);
       }
-      PutBuffer <<= 8;
-      PutBits -= 8;
+      putBuffer <<= 8;
+      putBits -= 8;
     }
 
-    if (PutBits > 0)
+    if (putBits > 0)
     {
-      var c = (PutBuffer >> 16) & 0xFF;
+      var c = (putBuffer >> 16) & 0xFF;
       WriteByte(outStream, c);
     }
   }
