@@ -2,12 +2,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Text;
 using Crypt;
 using Util;
 using log4net;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 public sealed class JpegEncoder : IDisposable
 {
@@ -31,7 +32,7 @@ public sealed class JpegEncoder : IDisposable
   /// </param>
   /// <param name="output"></param>
   /// <param name="comment"></param>
-  public JpegEncoder(Image image, Stream output, string comment, int quality = 80)
+  public JpegEncoder(Image<Rgba32> image, Stream output, string comment, int quality = 80)
   {
     _quality = quality;
 
@@ -123,6 +124,7 @@ public sealed class JpegEncoder : IDisposable
     {
       return;
     }
+
     var COM = new byte[length + 4];
     COM[0] = 0xFF; // comment marker
     COM[1] = 0xFE; // comment marker

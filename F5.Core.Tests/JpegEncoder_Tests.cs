@@ -1,7 +1,8 @@
 namespace F5.Core.Tests;
 
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using NUnit.Framework;
-using System.Drawing;
 using System.IO;
 using James;
 
@@ -10,7 +11,7 @@ public sealed class JpegEncoder_Tests
   [Test]
   public void Embed()
   {
-    using var image = Image.FromFile("borneo.jpg");
+    using var image = Image.Load<Rgba32>("borneo.jpg");
     using var output = new MemoryStream();
     using var jpg = new JpegEncoder(image, output, null);
     using var ms = new MemoryStream();

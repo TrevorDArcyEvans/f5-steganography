@@ -1,8 +1,9 @@
 ﻿namespace F5.Console;
 
 using System;
-using System.Drawing;
 using System.IO;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using Core.James;
 
 public static class Embed
@@ -104,7 +105,7 @@ public static class Embed
       return;
     }
 
-    using var image = Image.FromFile(inFileName);
+    using var image = Image.Load<Rgba32>(inFileName);
     using var jpg = new JpegEncoder(image, File.OpenWrite(outFileName), comment, quality);
     if (embFileName == null)
     {

@@ -4,7 +4,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using System.Drawing;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using F5.Core.James;
 
 public sealed partial class Index
@@ -28,7 +29,7 @@ public sealed partial class Index
     await using var imageData = new MemoryStream();
     await imageStrm.CopyToAsync(imageData);
     imageData.Seek(0, SeekOrigin.Begin);
-    using var image = Image.FromStream(imageData);
+    using var image = await Image.LoadAsync<Rgba32>(imageData);
     await using var output = new MemoryStream();
     using var jpg = new JpegEncoder(image, output, null);
     await using var ms = new MemoryStream();
@@ -38,8 +39,8 @@ public sealed partial class Index
     ms.Position = 0;
 
     jpg.Compress(ms, PasswordEmbed);
-    ms.Position = 0;
-    _data = ms.ToArray();
+    output.Position = 0;
+    _data = output.ToArray();
 
     IsFinishedEmbed = true;
     StateHasChanged();

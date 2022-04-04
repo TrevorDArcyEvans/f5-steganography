@@ -1,6 +1,7 @@
 ﻿namespace F5.Core.Tests;
 
-using System.Drawing;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using System.IO;
 using F5.Core.James;
 using FluentAssertions;
@@ -11,7 +12,7 @@ public sealed class RoundTrip_Tests
   [Test]
   public void RoundTrip()
   {
-    using var image = Image.FromFile("borneo.jpg");
+    using var image = Image.Load<Rgba32>("borneo.jpg");
     using var output = new MemoryStream();
     using var jpg = new JpegEncoder(image, output, null);
     using var msEmbed = new MemoryStream();

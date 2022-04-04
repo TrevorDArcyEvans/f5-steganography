@@ -1,10 +1,9 @@
 ﻿namespace F5.Core.James;
 
 using System;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
 using Util;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 internal sealed class JpegInfo
 {
@@ -25,7 +24,7 @@ internal sealed class JpegInfo
   public readonly int[] VsampFactor = { 2, 1, 1 };
   public readonly int[] BlockHeight;
   public readonly int[] BlockWidth;
-  private readonly Bitmap _bmp;
+  private readonly Image<Rgba32> _img;
   public readonly string Comment;
 
   internal readonly float[][][] Components;
@@ -34,21 +33,21 @@ internal sealed class JpegInfo
   public readonly int ImageHeight;
   public readonly int ImageWidth;
 
-  public JpegInfo(Image image, string comment)
+  public JpegInfo(Image<Rgba32> image, string comment)
   {
     Components = new float[NumberOfComponents][][];
     _compWidth = new int[NumberOfComponents];
     _compHeight = new int[NumberOfComponents];
     BlockWidth = new int[NumberOfComponents];
     BlockHeight = new int[NumberOfComponents];
-    _bmp = (Bitmap)image;
+    _img = image;
     ImageWidth = image.Width;
     ImageHeight = image.Height;
     Comment = comment ?? "JPEG Encoder Copyright 1998, James R. Weeks and BioElectroMech.  ";
     InitYCC();
   }
 
-  public JpegInfo(Image image)
+  public JpegInfo(Image<Rgba32> image)
     : this(image, string.Empty)
   {
   }
@@ -59,19 +58,14 @@ internal sealed class JpegInfo
   private void InitYCC()
   {
     int MaxHsampFactor, MaxVsampFactor;
-    int i, x, y, width, height, stride;
-    int size, pixelSize, offset, yPos;
-    byte r, g, b;
-    byte[] pixelData;
-
     MaxHsampFactor = MaxVsampFactor = 1;
-    for (i = 0; i < NumberOfComponents; i++)
+    for (var i = 0; i < NumberOfComponents; i++)
     {
       MaxHsampFactor = Math.Max(MaxHsampFactor, HsampFactor[i]);
       MaxVsampFactor = Math.Max(MaxVsampFactor, VsampFactor[i]);
     }
 
-    for (i = 0; i < NumberOfComponents; i++)
+    for (var i = 0; i < NumberOfComponents; i++)
     {
       _compWidth[i] = ImageWidth % 8 != 0 ? (int)Math.Ceiling(ImageWidth / 8.0) * 8 : ImageWidth;
       _compWidth[i] = _compWidth[i] / MaxHsampFactor * HsampFactor[i];
@@ -88,34 +82,36 @@ internal sealed class JpegInfo
     var Cb2 = ArrayHelper.CreateJagged<float>(_compHeight[1], _compWidth[1]);
     var Cr2 = ArrayHelper.CreateJagged<float>(_compHeight[2], _compWidth[2]);
 
-    using (_bmp)
+
+    var pixelData = new Rgba32[_img.Width * _img.Height];
+
+    _img.ProcessPixelRows(acc =>
     {
-      width = _bmp.Width;
-      height = _bmp.Height;
-      var rect = new Rectangle(0, 0, _bmp.Width, _bmp.Height);
-      var bmpData = _bmp.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-      stride = bmpData.Stride;
-      size = stride * height;
-      pixelSize = Image.GetPixelFormatSize(_bmp.PixelFormat) / 8;
-      pixelData = new byte[size];
-      Marshal.Copy(bmpData.Scan0, pixelData, 0, size);
-      _bmp.UnlockBits(bmpData);
-    }
+      for (var y = 0; y < acc.Height; y++)
+      {
+        var pxRow = acc.GetRowSpan(y);
+        for (var x = 0; x < pxRow.Length - 1; x++)
+        {
+          ref var px = ref pxRow[x];
+          pixelData[y * _img.Width + x] = px;
+        }
+      }
+    });
+
 
     // In order to minimize the chance that grabPixels will throw an
     // exception it may be necessary to grab some pixels every few scanlines and
     // process those before going for more. The time expense may be prohibitive.
     // However, for a situation where memory overhead is a concern, this may
     // be the only choice.
-    for (y = 0; y < height; y++)
+    for (var y = 0; y < _img.Height; y++)
     {
-      yPos = stride * y;
-      for (x = 0; x < width; x++)
+      for (var x = 0; x < _img.Width; x++)
       {
-        offset = yPos + x * pixelSize;
-        b = pixelData[offset];
-        g = pixelData[offset + 1];
-        r = pixelData[offset + 2];
+        var px = pixelData[y * _img.Width + x];
+        var b = px.B;
+        var g = px.G;
+        var r = px.R;
 
         Y[y][x] = (float)(0.299 * r + 0.587 * g + 0.114 * b);
         Cb1[y][x] = 128 + (float)(-0.16874 * r - 0.33126 * g + 0.5 * b);
