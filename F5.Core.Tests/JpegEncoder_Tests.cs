@@ -11,7 +11,8 @@ public sealed class JpegEncoder_Tests
   public void Embed()
   {
     using var image = Image.FromFile("borneo.jpg");
-    using var jpg = new JpegEncoder(image, File.OpenWrite("borneo-embed.jpg"), null);
+    using var dummy = new MemoryStream();
+    using var jpg = new JpegEncoder(image, dummy, null);
     using var ms = new MemoryStream();
     using var strm = new StreamWriter(ms);
     strm.Write("I Am Groot");
