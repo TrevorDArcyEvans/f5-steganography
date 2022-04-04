@@ -1,0 +1,45 @@
+﻿@page "/"
+
+<PageTitle>Steganosaurus</PageTitle>
+
+<style>
+  label
+  {
+    width: 100px;
+  }
+  
+  #messageEmbed, #messageExtract
+  {
+    width: 80%;
+  }
+</style>
+
+<h1>Embed</h1>
+<InputFile OnChange="@(async (e) => await LoadFileEmbed(e))"/>
+<p/>
+
+<label for="messageEmbed">Message:</label>
+<textarea @bind="MessageEmbed" id="messageEmbed"></textarea>
+<p/>
+
+<label for="passwordEmbed">Password:</label>
+<input type="text" @bind="PasswordEmbed" id="passwordEmbed"/>
+<p/>
+
+<button @onclick="DownloadEmbed">Download image file</button>
+<hr/>
+
+
+<h1>Extract</h1>
+<InputFile OnChange="@(async (e) => await LoadFileExtract(e))"/>
+<p/>
+
+<label for="messageExtract">Message:</label>
+<textarea @bind="MessageExtract" id="messageExtract" readonly></textarea>
+<p/>
+
+<label for="passwordExtract">Password:</label>
+<input type="text" @bind="PasswordExtract" id="passwordExtract"/>
+<p/>
+
+
