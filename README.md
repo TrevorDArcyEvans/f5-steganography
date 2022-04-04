@@ -4,6 +4,8 @@
 
 F5 is a steganography algorithm for hiding information in JPEG images.
 
+![](screenshot-ui-web.png)
+
 ## More Information:
 * [F5 A Steganographic Algorithm](F5-A-Steganographic-Algorithm.pdf)
 
@@ -42,7 +44,9 @@ spread out the changes over the whole steganogram.
 * ported to .NET Core 6
 * refactored
 * added unit tests
+* added web UI (WASM)
 
 ## Further Work
 * use [ImageSharp](https://github.com/SixLabors/ImageSharp) for graphics operations
+  * `Image.FromStream` is not implemented on non-Windows platforms
 * support Linux
