@@ -362,14 +362,10 @@ public sealed class JpegEncoder : IDisposable
     var coeff = GetCoeff(MinBlockWidth, MinBlockHeight);
     var coeffCount = coeff.Length;
     int i, j, r, c;
-    var _changed = 0;
-    var _embedded = 0;
-    var _examined = 0;
-    var _expected = 0;
-    var _one = 0;
-    var _large = 0;
-    var _thrown = 0;
-    var _zero = 0;
+    var expected = 0;
+    var one = 0;
+    var large = 0;
+    var zero = 0;
 
     Logger.Info("got " + coeffCount + " DCT AC/DC coefficients");
     for (i = 0; i < coeffCount; i++)
@@ -379,34 +375,34 @@ public sealed class JpegEncoder : IDisposable
       }
       else if (coeff[i] == 1 || coeff[i] == -1)
       {
-        _one++;
+        one++;
       }
       else if (coeff[i] == 0)
       {
-        _zero++;
+        zero++;
       }
 
-    _large = coeffCount - _zero - _one - coeffCount / 64;
-    _expected = _large + (int)(0.49 * _one);
+    large = coeffCount - zero - one - coeffCount / 64;
+    expected = large + (int)(0.49 * one);
     //
 
-    Logger.Info("one=" + _one);
-    Logger.Info("large=" + _large);
+    Logger.Info("one=" + one);
+    Logger.Info("large=" + large);
     //
-    Logger.Info("expected capacity: " + _expected + " bits");
+    Logger.Info("expected capacity: " + expected + " bits");
     Logger.Info("expected capacity with");
 
     for (i = 1; i < 8; i++)
     {
       int usable, changed, n;
       n = (1 << i) - 1;
-      usable = _expected * i / n - _expected * i / n % n;
-      changed = coeffCount - _zero - coeffCount / 64;
+      usable = expected * i / n - expected * i / n % n;
+      changed = coeffCount - zero - coeffCount / 64;
       changed = changed * i / n - changed * i / n % n;
       changed = n * changed / (n + 1) / i;
       //
-      changed = _large - _large % (n + 1);
-      changed = (changed + _one + _one / 2 - _one / (n + 1)) / (n + 1);
+      changed = large - large % (n + 1);
+      changed = (changed + one + one / 2 - one / (n + 1)) / (n + 1);
       usable /= 8;
       if (usable == 0)
       {
@@ -460,7 +456,7 @@ public sealed class JpegEncoder : IDisposable
       {
         int usable;
         n = (1 << i) - 1;
-        usable = _expected * i / n - _expected * i / n % n;
+        usable = expected * i / n - expected * i / n % n;
         usable /= 8;
         if (usable == 0) break;
 
@@ -495,7 +491,6 @@ public sealed class JpegEncoder : IDisposable
       nextBitToEmbed = byteToEmbed & 1;
       byteToEmbed >>= 1;
       availableBitsToEmbed = 31;
-      _embedded++;
 
       for (i = 0; i < permutation.Length; i++)
       {
@@ -507,17 +502,14 @@ public sealed class JpegEncoder : IDisposable
         }
 
         var cc = coeff[shuffled_index];
-        _examined += 1;
 
         if (cc > 0 && (cc & 1) != nextBitToEmbed)
         {
           coeff[shuffled_index]--;
-          _changed++;
         }
         else if (cc < 0 && (cc & 1) == nextBitToEmbed)
         {
           coeff[shuffled_index]++;
-          _changed++;
         }
 
         if (coeff[shuffled_index] != 0)
@@ -537,11 +529,9 @@ public sealed class JpegEncoder : IDisposable
           nextBitToEmbed = byteToEmbed & 1;
           byteToEmbed >>= 1;
           availableBitsToEmbed--;
-          _embedded++;
         }
         else
         {
-          _thrown++;
         }
       }
 
@@ -571,7 +561,6 @@ public sealed class JpegEncoder : IDisposable
             byteToEmbed >>= 1;
             availableBitsToEmbed--;
             kBitsToEmbed |= nextBitToEmbed << i;
-            _embedded++;
           }
 
           var codeWord = filtered_index.Offer(n);
@@ -607,11 +596,8 @@ public sealed class JpegEncoder : IDisposable
               coeff[codeWord[i]]--;
             }
 
-            _changed++;
-
             if (coeff[codeWord[i]] == 0)
             {
-              _thrown++;
               codeWord.RemoveAt(i);
               codeWord.Add(filtered_index.Offer());
             }
@@ -668,9 +654,8 @@ public sealed class JpegEncoder : IDisposable
       return;
     if (disposing)
     {
-      if (_embeddedData != null) _embeddedData.Dispose();
-
-      if (_output != null) _output.Dispose();
+      _embeddedData?.Dispose();
+      _output?.Dispose();
     }
 
     _disposed = true;
