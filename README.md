@@ -38,15 +38,20 @@ spread out the changes over the whole steganogram.
 ## Dependencies:
 * BouncyCastle
 * log4net
-* System.Drawing.Common
+* ImageSharp
 
 ## Changes from original project
 * ported to .NET Core 6
 * refactored
 * added unit tests
 * added web UI (WASM)
+* used [ImageSharp](https://github.com/SixLabors/ImageSharp) for graphics operations
+
+## Notes
+* WASM performance is *very* slow
 
 ## Further Work
-* use [ImageSharp](https://github.com/SixLabors/ImageSharp) for graphics operations
-  * `Image.FromStream` is not implemented on non-Windows platforms
-* support Linux
+* ~~use [ImageSharp](https://github.com/SixLabors/ImageSharp) for graphics operations~~
+  * ~~Image.FromStream is not implemented on non-Windows platforms~~
+* ~~support Linux~~
+* profile code & improve performance
