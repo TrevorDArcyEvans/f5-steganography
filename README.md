@@ -36,3 +36,13 @@ spread out the changes over the whole steganogram.
 ## Dependencies:
 * BouncyCastle
 * log4net
+* System.Drawing.Common
+
+## Changes from original project
+* ported to .NET Core 6
+* refactored
+* added unit tests
+
+## Further Work
+* use [ImageSharp](https://github.com/SixLabors/ImageSharp) for graphics operations
+* support Linux
