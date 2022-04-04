@@ -1,24 +1,23 @@
-﻿namespace F5.Core.Util
+﻿namespace F5.Core.Util;
+
+internal static class ArrayHelper
 {
-  internal static class ArrayHelper
+  public static T[][] CreateJagged<T>(int x, int y)
   {
-    public static T[][] CreateJagged<T>(int x, int y)
+    var result = new T[x][];
+    for (var i = 0; i < x; i++) result[i] = new T[y];
+    return result;
+  }
+
+  public static T[][][] CreateJagged<T>(int x, int y, int z)
+  {
+    var result = new T[x][][];
+    for (var i = 0; i < x; i++)
     {
-      var result = new T[x][];
-      for (var i = 0; i < x; i++) result[i] = new T[y];
-      return result;
+      result[i] = new T[y][];
+      for (var j = 0; j < y; j++) result[i][j] = new T[z];
     }
 
-    public static T[][][] CreateJagged<T>(int x, int y, int z)
-    {
-      var result = new T[x][][];
-      for (var i = 0; i < x; i++)
-      {
-        result[i] = new T[y][];
-        for (var j = 0; j < y; j++) result[i][j] = new T[z];
-      }
-
-      return result;
-    }
+    return result;
   }
 }

@@ -1,52 +1,51 @@
-﻿namespace F5.Core.Crypt
+﻿namespace F5.Core.Crypt;
+
+using System.Collections.Generic;
+
+internal sealed class FilteredCollection
 {
-  using System.Collections.Generic;
+  private readonly int[] coeff;
+  private readonly int[] iterable;
+  private int now;
 
-  internal sealed class FilteredCollection
+  public FilteredCollection(int[] iterable, int[] coeff)
   {
-    private readonly int[] coeff;
-    private readonly int[] iterable;
-    private int now;
+    this.iterable = iterable;
+    this.coeff = coeff;
+  }
 
-    public FilteredCollection(int[] iterable, int[] coeff)
+  public FilteredCollection(int[] iterable, int[] coeff, int startIndex)
+    : this(iterable, coeff)
+  {
+    now = startIndex;
+  }
+
+  public int Current => iterable[now];
+
+  private bool IsValid(int n)
+  {
+    return n % 64 != 0 && coeff[n] != 0;
+  }
+
+  public List<int> Offer(int count)
+  {
+    var result = new List<int>(count);
+    while (count > 0)
     {
-      this.iterable = iterable;
-      this.coeff = coeff;
-    }
-
-    public FilteredCollection(int[] iterable, int[] coeff, int startIndex)
-      : this(iterable, coeff)
-    {
-      now = startIndex;
-    }
-
-    public int Current => iterable[now];
-
-    private bool IsValid(int n)
-    {
-      return n % 64 != 0 && coeff[n] != 0;
-    }
-
-    public List<int> Offer(int count)
-    {
-      var result = new List<int>(count);
-      while (count > 0)
+      while (now < iterable.Length && !IsValid(Current)) now++;
+      if (now < iterable.Length)
       {
-        while (now < iterable.Length && !IsValid(Current)) now++;
-        if (now < iterable.Length)
-        {
-          count--;
-          result.Add(Current);
-          now++;
-        }
+        count--;
+        result.Add(Current);
+        now++;
       }
-
-      return result;
     }
 
-    public int Offer()
-    {
-      return Offer(1)[0];
-    }
+    return result;
+  }
+
+  public int Offer()
+  {
+    return Offer(1)[0];
   }
 }
