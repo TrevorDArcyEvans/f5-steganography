@@ -12,10 +12,51 @@
   {
     width: 80%;
   }
+  
+  .dropzone
+  {
+    border: 3px dashed steelblue;
+    padding: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #eee;
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.2);
+    color: #444;
+    font-size: 1.5rem;
+    cursor: pointer;
+    position: relative;
+  }
+ 
+  .dropzone:hover
+  {
+    background-color: #f3f3f3;
+    color: #333;
+  }
+ 
+  .dropzone input[type=file]
+  {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+ 
+  .dropzone-drag
+  {
+    background-color: palegreen;
+  }
+
 </style>
 
 <h1>Embed</h1>
-<InputFile OnChange="@(async (e) => await LoadFileEmbed(e))"/>
+<div class="dropzone rounded">
+  <InputFile
+    OnChange="@(async (e) => await LoadFileEmbed(e))"
+    accept="image/png,image/gif,image/jpeg"/>
+  Upload image
+</div>
 <p/>
 
 <label for="messageEmbed">Message:</label>
@@ -31,7 +72,12 @@
 
 
 <h1>Extract</h1>
-<InputFile OnChange="@(async (e) => await LoadFileExtract(e))"/>
+<div class="dropzone rounded">
+  <InputFile
+    OnChange="@(async (e) => await LoadFileExtract(e))"
+    accept="image/png,image/gif,image/jpeg"/>
+  Upload image
+</div>
 <p/>
 
 <label for="messageExtract">Message:</label>
@@ -42,5 +88,6 @@
 <input type="text" @bind="PasswordExtract" id="passwordExtract"/>
 <p/>
 
-<label hidden="@(!IsFinishedExtract)"><i>Finished!</i></label>
-
+<label hidden="@(!IsFinishedExtract)">
+  <i>Finished!</i>
+</label>
