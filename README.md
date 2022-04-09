@@ -6,6 +6,20 @@ F5 is a steganography algorithm for hiding information in JPEG images.
 
 ![](screenshot-ui-web.png)
 
+## Prerequisites
+* .NET Core 6
+
+## Getting started
+```bash
+git clone 
+cd https://github.com/TrevorDArcyEvans/f5-steganography.git
+dotnet restore
+dotnet build
+cd Steganosaurus/
+dotnet run
+```
+open [Steganosaurus](http://localhost:5270)
+
 ## More Information:
 * [F5 A Steganographic Algorithm](F5-A-Steganographic-Algorithm.pdf)
 
