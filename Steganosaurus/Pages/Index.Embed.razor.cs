@@ -18,10 +18,14 @@ public sealed partial class Index
   private string FileNameEmbed { get; set; }
   private byte[] _data { get; set; }
   private bool IsFinishedEmbed { get; set; }
+  private string SourceFileNameEmbed { get; set; } = "Upload image";
+  private string ImgEmbedUrl { get; set; } = GetDefaultImageString();
 
   private async Task LoadFileEmbed(InputFileChangeEventArgs e)
   {
     IsFinishedEmbed = false;
+    SourceFileNameEmbed = e.File.Name;
+    ImgEmbedUrl = await GetImageString(e.File);
     StateHasChanged();
 
     FileNameEmbed = $"{Path.GetFileNameWithoutExtension(e.File.Name)}-embed{Path.GetExtension(e.File.Name)}";

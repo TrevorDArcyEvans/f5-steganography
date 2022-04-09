@@ -9,10 +9,14 @@ public sealed partial class Index
   private string MessageExtract { get; set; } = string.Empty;
   private string PasswordExtract { get; set; } = "abc123";
   private bool IsFinishedExtract { get; set; }
+  private string SourceFileNameExtract { get; set; } = "Upload image";
+  private string ImgExtractUrl { get; set; } = GetDefaultImageString();
 
   private async Task LoadFileExtract(InputFileChangeEventArgs e)
   {
     IsFinishedExtract = false;
+    SourceFileNameExtract = e.File.Name;
+    ImgExtractUrl = await GetImageString(e.File);
     StateHasChanged();
 
     await using var imageStrm = e.File.OpenReadStream();
